@@ -5,17 +5,16 @@ import WebSocket from "ws";
 import readline from "readline";
 import crypto from "crypto";
 
+const DEFAULT_SERVER = "wss://terminal-jzpq.onrender.com";
+const PUBLIC_BASE_URL = "https://terminal-jzpq.onrender.com";
+
 const program = new Command();
 
 program
   .name("devjk")
   .description("Temporary localhost tunnel")
   .option("-p, --port <port>", "Local port")
-  .option(
-    "-s, --server <url>",
-    "Tunnel WebSocket server URL",
-    "wss://YOUR_RENDER_APP_URL"
-  )
+  .option("-s, --server <url>", "Tunnel WebSocket server URL", DEFAULT_SERVER)
   .parse(process.argv);
 
 const options = program.opts();
@@ -55,13 +54,6 @@ async function main() {
   const tunnelId = createTunnelId();
   const serverUrl = options.server;
 
-  if (serverUrl.includes("YOUR_RENDER_APP_URL")) {
-    console.error("Please update server URL first.");
-    console.error("Example:");
-    console.error("npx devjk --port 5173 --server wss://devjk-server.onrender.com");
-    process.exit(1);
-  }
-
   const ws = new WebSocket(serverUrl);
 
   ws.on("open", () => {
@@ -80,7 +72,7 @@ async function main() {
       console.log("");
       console.log("Tunnel ready:");
       console.log(`Local:  http://localhost:${port}`);
-      console.log(`Public: https://${tunnelId}.obsio.tech`);
+      console.log(`Public: ${PUBLIC_BASE_URL}/t/${tunnelId}`);
       console.log("");
       console.log("Press Ctrl + C to stop tunnel");
     }

@@ -8,8 +8,6 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
 const PORT = process.env.PORT || 10000;
-const BASE_DOMAIN = process.env.BASE_DOMAIN || "obsio.tech";
-
 const tunnels = new Map();
 
 app.use(express.raw({ type: "*/*", limit: "20mb" }));
@@ -21,28 +19,21 @@ app.get("/health", (req, res) => {
   });
 });
 
-function getTunnelIdFromHost(host) {
-  if (!host) return null;
-
-  const cleanHost = host.split(":")[0];
-
-  if (cleanHost.endsWith(`.${BASE_DOMAIN}`)) {
-    return cleanHost.replace(`.${BASE_DOMAIN}`, "");
-  }
-
-  if (cleanHost.endsWith(".localhost")) {
-    return cleanHost.replace(".localhost", "");
-  }
-
-  return null;
+function getTunnelIdFromRequest(req) {
+  const match = req.originalUrl.match(/^\/t\/([^/]+)(\/.*)?$/);
+  return match ? match[1] : null;
 }
 
-// Express 5 fix: use app.use instead of app.all("*")
+function getForwardPath(req) {
+  const match = req.originalUrl.match(/^\/t\/[^/]+(\/.*)?$/);
+  return match?.[1] || "/";
+}
+
 app.use(async (req, res) => {
-  const tunnelId = getTunnelIdFromHost(req.headers.host);
+  const tunnelId = getTunnelIdFromRequest(req);
 
   if (!tunnelId) {
-    return res.status(400).send("Invalid tunnel host");
+    return res.status(400).send("Invalid tunnel path. Use /t/:tunnelId");
   }
 
   const ws = tunnels.get(tunnelId);
@@ -59,7 +50,7 @@ app.use(async (req, res) => {
     type: "request",
     requestId,
     method: req.method,
-    path: req.originalUrl,
+    path: getForwardPath(req),
     headers: req.headers,
     bodyBase64
   };
@@ -68,7 +59,6 @@ app.use(async (req, res) => {
     if (!res.headersSent) {
       res.status(504).send("Tunnel request timeout");
     }
-
     ws.pendingRequests?.delete(requestId);
   }, 30000);
 

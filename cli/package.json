@@ -1,19 +1,22 @@
 {
   "name": "devjk",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Temporary localhost tunnel CLI",
   "type": "module",
   "bin": {
-    "devjk": "./bin/devjk.js"
+    "devjk": "bin/devjk.js"
   },
+  "files": [
+    "bin",
+    "README.md"
+  ],
   "scripts": {
-    "start": "node ./bin/devjk.js"
+    "start": "node bin/devjk.js"
   },
   "keywords": [
     "localhost",
     "tunnel",
-    "cli",
-    "devjk"
+    "cli"
   ],
   "author": "Jainish",
   "license": "MIT",
