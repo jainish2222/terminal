@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment Variables (SENSITIVE)
+.env
+.env.test
+
+# Build and Output
+dist/
+build/
+.next/
+.nuxt/
+
+# IDE/Cache
+.eslintcache
+.nyc_output
+.npm
